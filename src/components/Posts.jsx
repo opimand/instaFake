@@ -1,14 +1,73 @@
 import React, {Component} from 'react';
-import Post from './Post'
+import User from './User'
+import InstaService from '../services/instaervice'
+import ErrorMessage from './ErrorMessage'
 export default class Posts extends Component {
+
+    InstaService = new InstaService()
+    
+    state = {
+        posts: [],
+        error: false
+    }
+
+    componentDidMount() {
+        this.updatePosts()
+    }
+
+    updatePosts() {
+        this.InstaService.getAllPosts()
+        .then(this.onPostsLoaded)
+        .catch(this.onError)
+    }
+
+    onPostsLoaded = (posts) => {
+        this.setState({
+            posts,
+            error: false
+        })
+    }
+
+    inError = (err) => {
+        this.setState({
+            error: true
+        })
+    }
+
+    renderItems(arr) {
+        return arr.map(item => {
+
+            const {name, altname, photo, src, alt, descr, id} = item;
+            
+            return (
+                <div className="post" key = {id}>
+                <div className="post">
+                <User src={photo}
+                alt={altname}
+                name={name}
+                min/>
+                <img  src={src} alt={alt}/>
+                <div className="post__name">{name}</div>
+                <div className="post__descr">{descr}</div>
+            </div>
+            </div>
+            )
+
+        })
+    }
+
     render() {
+
+        const {error, posts} = this.state
+        if(error){
+            return <ErrorMessage/>
+        }
+
+        const items = this.renderItems(posts)
+
         return (
             <div className="left">
-                <Post alt='post' 
-                src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Bachalpsee_reflection.jpg/250px-Bachalpsee_reflection.jpg'/>
-
-<               Post alt='post' 
-                src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Bachalpsee_reflection.jpg/250px-Bachalpsee_reflection.jpg'/>
+                {items}
             </div>
         )
     }
